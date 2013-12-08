@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Nagios plugin to monitor Java JMX (http://java.sun.com/jmx)attributes.
+#
+RDIR=`dirname $0`
+result=$(/usr/local/groundwork/java/bin/java -cp $RDIR/jmxquery.jar org.nagios.JMXQuery $@)
+exit_code=$?
+# echo $result | awk -v output="" '{for (x=1; x<=NF; x++) {if (!($x ~ "=")) output = output""$x" "; else {output = output"|"; pointer=x; break}}; for (x=pointer; x<=NF; x++) {output = output" "$x}} END {print output}'
+echo $result | awk -v flag=0 -v performance="|" '{for (x=1; x<=NF; x++) if ($x ~ "=") {performance = performance" "$x; if (flag==0) {$(x-1)=$(x-1)" -"; flag=1}}} END {for (x=1; x<=NF; x++) printf $x" "; print performance}'
+exit $exit_code
